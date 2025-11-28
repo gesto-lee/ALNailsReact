@@ -1,3 +1,4 @@
+// atualização forçada para rebuild
 // src/App.jsx
 import React, { useState, useEffect } from "react";
 import "./styles.css";
