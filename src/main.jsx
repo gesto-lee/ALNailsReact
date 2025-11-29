@@ -1,12 +1,24 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+<<<<<<< HEAD
+=======
 
+>>>>>>> c721d277c266fac60590c65ee57e191e11267953
 import App from "./App.jsx";
 import AdminLogin from "./AdminLogin.jsx";
 import AdminPanel from "./AdminPanel.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
+<<<<<<< HEAD
+  <BrowserRouter>
+    <Routes>
+      <Route path="/" element={<App />} />
+      <Route path="/login" element={<AdminLogin />} />
+      <Route path="/admin" element={<AdminPanel />} />
+    </Routes>
+  </BrowserRouter>
+=======
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
@@ -23,4 +35,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
+>>>>>>> c721d277c266fac60590c65ee57e191e11267953
 );

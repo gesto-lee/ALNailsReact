@@ -1,21 +1,18 @@
 // src/firebase.js
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
-/*
-  ====== COLE AQUI O SEU FIREBASE CONFIG (v9 modular) ======
-  Exemplo:
-*/
 const firebaseConfig = {
-  apiKey: "AIzaSyAxFC0eOx0wxXW1DUb2SNlu8-isedQA6yw",
-  authDomain: "al-nails-designers.firebaseapp.com",
-  projectId: "al-nails-designers",
-  storageBucket: "al-nails-designers.firebasestorage.app",
-  messagingSenderId: "522284057246",
-  appId: "1:522284057246:web:e3ecc9a46509cbed61718f",
-  measurementId: "G-JWKF7FTY6J"
+  apiKey: "AIzaSyBsX7QL97uRDbUhgKSkwQx_qzSZVTninv8",
+  authDomain: "al-nails-react.firebaseapp.com",
+  projectId: "al-nails-react",
+  storageBucket: "al-nails-react.appspot.com",
+  messagingSenderId: "84134603236",
+  appId: "1:84134603236:web:948e8d996bf1ea0d30e5fd"
 };
 
+// Inicializa app
 const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export default app;
+
+// <-- ISSO AQUI FALTAVA
+export const auth = getAuth(app);
