@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -135,7 +135,6 @@ const styles = {
     width: "100%",
   },
 };
-=======
 import { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -192,4 +191,4 @@ export default function AdminPanel() {
     </div>
   );
 }
->>>>>>> c721d277c266fac60590c65ee57e191e11267953
+
