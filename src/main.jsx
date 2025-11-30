@@ -30,6 +30,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
->>>>>>> c721d277c266fac60590c65ee57e191e11267953
 );
+
 
