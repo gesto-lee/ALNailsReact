@@ -1,4 +1,3 @@
-// atualização forçada para rebuild
 // src/App.jsx
 import React, { useState, useEffect } from "react";
 import "./styles.css";
@@ -13,10 +12,9 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-/* === CONFIGURE AQUI === */
-// número do WhatsApp do seu negócio (DDI+DDD+NUM, sem +)
+/* === CONFIGURAÇÃO === */
 const BUSINESS_WHATSAPP = "5562982097833";
-const OWNER_WHATSAPP = BUSINESS_WHATSAPP; 
+const OWNER_WHATSAPP = BUSINESS_WHATSAPP;
 /* ====================== */
 
 const TIME_SLOTS = ["08:00", "10:00", "12:00", "14:00", "16:00"];
@@ -30,10 +28,6 @@ const SERVICES = [
   "Outro (WhatsApp)",
 ];
 
-function formatDateKey(dateStr) {
-  return dateStr; 
-}
-
 export default function App() {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -41,31 +35,40 @@ export default function App() {
   const [data, setData] = useState("");
   const [hora, setHora] = useState("");
   const [booked, setBooked] = useState([]);
-  const [nextAppointments, setNextAppointments] = useState([]);
+
+  // AGENDAMENTOS VISÍVEIS PARA O CLIENTE
+  const [clientAppointments, setClientAppointments] = useState([]);
   const [loadingNext, setLoadingNext] = useState(true);
 
-  // carregar próximos agendamentos
+  // Carregar somente agendamentos do cliente
   useEffect(() => {
-    async function loadNext() {
+    async function loadClientAppointments() {
       try {
         const col = collection(db, "appointments");
-        const q = query(col, orderBy("createdAt", "desc"));
-        const snap = await getDocs(q);
+        const q = query(
+          col,
+          where("phone", "==", telefone.trim()),
+          orderBy("createdAt", "desc")
+        );
 
+        const snap = await getDocs(q);
         const items = [];
         snap.forEach((doc) => items.push({ id: doc.id, ...doc.data() }));
 
-        setNextAppointments(items.slice(0, 10));
+        setClientAppointments(items.slice(0, 5)); // até 5 por segurança
       } catch (err) {
-        console.error("Erro ao carregar próximos agendamentos:", err);
+        console.error("Erro ao carregar agendamentos:", err);
       } finally {
         setLoadingNext(false);
       }
     }
-    loadNext();
-  }, []);
 
-  // carregar horários reservados
+    if (telefone.length >= 10) {
+      loadClientAppointments();
+    }
+  }, [telefone]);
+
+  // Carregar horários ocupados da data selecionada
   useEffect(() => {
     async function loadBooked() {
       setBooked([]);
@@ -88,6 +91,7 @@ export default function App() {
         console.error("Erro ao carregar horários:", err);
       }
     }
+
     loadBooked();
   }, [data]);
 
@@ -99,26 +103,68 @@ export default function App() {
   const handleServiceChange = (e) => {
     const val = e.target.value;
     setServico(val);
+
     if (val === "Outro (WhatsApp)") {
-      openWhatsApp(BUSINESS_WHATSAPP, "Olá! Gostaria de saber sobre outros serviços.");
+      openWhatsApp(
+        BUSINESS_WHATSAPP,
+        "Olá! Gostaria de saber sobre outros serviços."
+      );
     }
   };
 
   const enviarFormulario = async (e) => {
     e.preventDefault();
 
+    // BLOQUEAR DATA PASSADA
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    const [ano, mes, dia] = data.split("-");
+    const dataAgendada = new Date(ano, mes - 1, dia);
+
+    if (dataAgendada < hoje) {
+      alert("Não é possível agendar uma data que já passou.");
+      return;
+    }
+
+    // BLOQUEAR HORA PASSADA HOJE
+    if (dataAgendada.getTime() === hoje.getTime()) {
+      const agora = new Date();
+      const [h, m] = hora.split(":");
+
+      const horarioAgendado = new Date();
+      horarioAgendado.setHours(h, m, 0, 0);
+
+      if (horarioAgendado <= agora) {
+        alert("Não é possível agendar um horário que já passou hoje.");
+        return;
+      }
+    }
+
+    // VALIDAÇÕES BÁSICAS
     if (!nome || !telefone || !servico || !data || !hora) {
       alert("Preencha todos os campos!");
       return;
     }
 
-    if (!TIME_SLOTS.includes(hora)) {
-      alert("Horário inválido!");
+    // BLOQUEAR HORÁRIO JÁ RESERVADO
+    if (booked.includes(hora)) {
+      alert("Esse horário já está reservado.");
       return;
     }
 
-    if (booked.includes(hora)) {
-      alert("Esse horário já está reservado.");
+    // 🟦 IMPEDIR O MESMO CLIENTE DE MARCAR O MESMO HORÁRIO NO MESMO DIA
+    const colCheck = collection(db, "appointments");
+    const qCheck = query(
+      colCheck,
+      where("phone", "==", telefone.trim()),
+      where("date", "==", data),
+      where("time", "==", hora)
+    );
+
+    const snapCheck = await getDocs(qCheck);
+    if (!snapCheck.empty) {
+      alert("Você já possui um agendamento neste horário!");
       return;
     }
 
@@ -133,17 +179,16 @@ export default function App() {
         createdAt: serverTimestamp(),
       });
 
-      setBooked((prev) => [...prev, hora]);
-
-      const msg = `Novo agendamento:
+      openWhatsApp(
+        OWNER_WHATSAPP,
+        `Novo agendamento:
 Nome: ${nome}
 Telefone: ${telefone}
 Serviço: ${servico}
 Data: ${data}
 Hora: ${hora}
-ID: ${docRef.id}`;
-
-      openWhatsApp(OWNER_WHATSAPP, msg);
+ID: ${docRef.id}`
+      );
 
       alert("Agendamento realizado com sucesso!");
 
@@ -173,9 +218,8 @@ ID: ${docRef.id}`;
             className="zap-link"
             href={`https://wa.me/${BUSINESS_WHATSAPP}`}
             target="_blank"
-            rel="noopener noreferrer"
           >
-            <span className="telefone-text"> (62) 98209-7833</span>
+            <span className="telefone-text">(62) 98209-7833</span>
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
               className="whatsapp-icon-svg"
@@ -216,7 +260,11 @@ ID: ${docRef.id}`;
           </select>
 
           <label>Data</label>
-          <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
+          <input
+            type="date"
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+          />
 
           <label>Hora</label>
           <select value={hora} onChange={(e) => setHora(e.target.value)}>
@@ -234,16 +282,17 @@ ID: ${docRef.id}`;
         </form>
 
         <section className="lista-agendamentos">
-          <h3>Próximos Agendamentos</h3>
+          <h3>Seus Próximos Agendamentos</h3>
+
           {loadingNext ? (
-            <p>Carregando agendamentos...</p>
-          ) : nextAppointments.length === 0 ? (
+            <p>Carregando...</p>
+          ) : clientAppointments.length === 0 ? (
             <p>Nenhum agendamento encontrado</p>
           ) : (
             <ul>
-              {nextAppointments.map((a) => (
+              {clientAppointments.map((a) => (
                 <li key={a.id}>
-                  <strong>{a.name}</strong> — {a.service} — {a.date} {a.time}
+                  <strong>{a.service}</strong> — {a.date} às {a.time}
                 </li>
               ))}
             </ul>
