@@ -7,7 +7,7 @@ export default function AdminPanel() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Verifica login
+  // Verifica se está logado
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (!user) {
