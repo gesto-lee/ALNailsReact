@@ -18,7 +18,7 @@ export default function AdminPanel() {
     return () => unsub();
   }, []);
 
-  // Carrega agendamentos
+  // Carrega os agendamentos
   async function loadAppointments() {
     setLoading(true);
     const snap = await getDocs(collection(db, "appointments"));
@@ -27,11 +27,13 @@ export default function AdminPanel() {
     setLoading(false);
   }
 
+  // Deletar agendamento
   async function deleteAppointment(id) {
     await deleteDoc(doc(db, "appointments", id));
     loadAppointments();
   }
 
+  // Carrega ao abrir a página
   useEffect(() => {
     loadAppointments();
   }, []);
@@ -79,13 +81,15 @@ const styles = {
     padding: "30px",
     background: "#ffe4f2",
     minHeight: "100vh",
-    fontFamily: "Arial",
+    fontFamily: "Arial, sans-serif",
+    position: "relative",
   },
   title: {
     textAlign: "center",
     fontSize: "32px",
     fontWeight: "bold",
     color: "#d63384",
+    marginBottom: "10px",
   },
   subtitle: {
     marginTop: "20px",
@@ -96,11 +100,13 @@ const styles = {
   loading: {
     textAlign: "center",
     marginTop: "20px",
+    fontSize: "18px",
   },
   noData: {
     textAlign: "center",
     marginTop: "20px",
     color: "#555",
+    fontSize: "18px",
   },
   logoutButton: {
     position: "absolute",
@@ -112,21 +118,24 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+    fontWeight: "bold",
   },
   cardContainer: {
-    marginTop: "20px",
+    marginTop: "30px",
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
     gap: "20px",
+    padding: "10px",
   },
   card: {
     background: "#fff",
     padding: "20px",
     borderRadius: "12px",
     boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
+    fontSize: "16px",
   },
   deleteBtn: {
-    marginTop: "10px",
+    marginTop: "15px",
     background: "#ff4d4d",
     color: "#fff",
     padding: "10px",
@@ -134,5 +143,6 @@ const styles = {
     borderRadius: "8px",
     cursor: "pointer",
     width: "100%",
+    fontWeight: "bold",
   },
 };
