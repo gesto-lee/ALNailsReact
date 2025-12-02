@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -7,17 +6,22 @@ import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
 export default function AdminPanel() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
+  // Verifica login
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user) {
+    const unsub = onAuthStateChanged(auth, (usuario) => {
+      if (!usuario) {
         window.location.href = "/login";
+      } else {
+        setUser(usuario);
       }
     });
 
     return () => unsub();
   }, []);
 
+  // Carrega agendamentos
   async function loadAppointments() {
     setLoading(true);
     const snap = await getDocs(collection(db, "appointments"));
@@ -26,6 +30,7 @@ export default function AdminPanel() {
     setLoading(false);
   }
 
+  // Deletar agendamento
   async function deleteAppointment(id) {
     await deleteDoc(doc(db, "appointments", id));
     loadAppointments();
@@ -37,158 +42,4 @@ export default function AdminPanel() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Painel Administrativo - AL Nails Designers</h1>
-
-      <button onClick={() => signOut(auth)} style={styles.logoutButton}>
-        Sair
-      </button>
-
-      <h2 style={styles.subtitle}>Agendamentos</h2>
-
-      {loading ? (
-        <p style={styles.loading}>Carregando...</p>
-      ) : appointments.length === 0 ? (
-        <p style={styles.noData}>Nenhum agendamento encontrado.</p>
-      ) : (
-        <div style={styles.cardContainer}>
-          {appointments.map((a) => (
-            <div key={a.id} style={styles.card}>
-              <p><b>Nome:</b> {a.name}</p>
-              <p><b>Telefone:</b> {a.phone}</p>
-              <p><b>Serviço:</b> {a.service}</p>
-              <p><b>Data:</b> {a.date}</p>
-              <p><b>Hora:</b> {a.time}</p>
-
-              <button
-                onClick={() => deleteAppointment(a.id)}
-                style={styles.deleteBtn}
-              >
-                Excluir
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-const styles = {
-  container: {
-    padding: "30px",
-    background: "#ffe4f2",
-    minHeight: "100vh",
-    fontFamily: "Arial",
-  },
-  title: {
-    textAlign: "center",
-    fontSize: "32px",
-    fontWeight: "bold",
-    color: "#d63384",
-  },
-  subtitle: {
-    marginTop: "20px",
-    fontSize: "22px",
-    color: "#b30059",
-    textAlign: "center",
-  },
-  loading: {
-    textAlign: "center",
-    marginTop: "20px",
-  },
-  noData: {
-    textAlign: "center",
-    marginTop: "20px",
-    color: "#555",
-  },
-  logoutButton: {
-    position: "absolute",
-    top: "20px",
-    right: "20px",
-    padding: "10px 20px",
-    background: "#ff4d6d",
-    color: "#fff",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-  },
-  cardContainer: {
-    marginTop: "20px",
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "20px",
-  },
-  card: {
-    background: "#fff",
-    padding: "20px",
-    borderRadius: "12px",
-    boxShadow: "0 3px 8px rgba(0,0,0,0.1)",
-  },
-  deleteBtn: {
-    marginTop: "10px",
-    background: "#ff4d4d",
-    color: "#fff",
-    padding: "10px",
-    border: "none",
-    borderRadius: "8px",
-    cursor: "pointer",
-    width: "100%",
-  },
-};
-import { useEffect, useState } from "react";
-import { auth, db } from "./firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-
-export default function AdminPanel() {
-  const [user, setUser] = useState(null);
-  const [agendamentos, setAgendamentos] = useState([]);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (usuario) => {
-      if (!usuario) {
-        window.location.href = "/login";
-      } else {
-        setUser(usuario);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const q = query(collection(db, "appointments"), orderBy("data", "asc"));
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      const lista = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setAgendamentos(lista);
-    });
-
-    return () => unsub();
-  }, []);
-
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>Painel da Dona</h2>
-      <p>Logada como: {user?.email}</p>
-
-      <button onClick={() => signOut(auth)}>Sair</button>
-
-      <h3>Todos os Agendamentos</h3>
-
-      {agendamentos.length === 0 && <p>Nenhum agendamento encontrado.</p>}
-
-      {agendamentos.map((ag) => (
-        <div key={ag.id} style={{ border: "1px solid #ccc", padding: 10, marginTop: 10 }}>
-          <strong>{ag.nome}</strong> → {ag.servico} <br />
-          Telefone: {ag.telefone} <br />
-          Data: {ag.data} — Hora: {ag.hora}
-        </div>
-      ))}
-    </div>
-  );
-}
-
+      <h1 style={styles.title}>Painel Administrativo
