@@ -1,12 +1,4 @@
-
 import React, { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-
-// IMPORTAÇÃO CORRETA DO FIREBASE
-import { auth } from "./firebase";
-
-function AdminLogin() {
-import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
@@ -21,25 +13,15 @@ export default function AdminLogin() {
 
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-      alert("Login realizado com sucesso!");
-      window.location.href = "/painel"; // redireciona após login
-    } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      setErro("Email ou senha inválidos.");
-    try {
-      await signInWithEmailAndPassword(auth, email, senha);
-      window.location.href = "/painel";
+      window.location.href = "/painel"; // redireciona ao painel
     } catch (err) {
-      setErro("Email ou senha incorretos");
+      console.error("Erro no login:", err);
+      setErro("Email ou senha incorretos.");
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "40px auto", textAlign: "center" }}>
-      <h2>Painel Administrativo</h2>
-
-      <form onSubmit={fazerLogin}>
-    <div style={{ padding: 40, textAlign: "center" }}>
+    <div style={{ maxWidth: 400, margin: "40px auto", textAlign: "center" }}>
       <h2>Painel da Dona</h2>
 
       <form onSubmit={fazerLogin} style={{ marginTop: 20 }}>
@@ -48,8 +30,13 @@ export default function AdminLogin() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-          style={{ padding: 10, width: 250, display: "block", margin: "10px auto" }}
+          style={{
+            padding: 10,
+            width: "100%",
+            marginBottom: 10,
+            borderRadius: 5,
+            border: "1px solid #ccc",
+          }}
         />
 
         <input
@@ -57,46 +44,35 @@ export default function AdminLogin() {
           placeholder="Senha"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
-        />
-
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            padding: "10px",
-            background: "black",
-            color: "white",
-            border: "none",
-            cursor: "pointer",
-          style={{ padding: 10, width: 250, display: "block", margin: "10px auto" }}
-        />
-
-        {erro && <p style={{ color: "red" }}>{erro}</p>}
-
-        <button
-          type="submit"
           style={{
             padding: 10,
-            width: 250,
+            width: "100%",
+            marginBottom: 10,
+            borderRadius: 5,
+            border: "1px solid #ccc",
+          }}
+        />
+
+        <button
+          type="submit"
+          style={{
+            padding: 12,
+            width: "100%",
             background: "hotpink",
             border: "none",
             color: "white",
+            fontWeight: "bold",
+            borderRadius: 5,
             cursor: "pointer",
-            marginTop: 10
           }}
         >
           Entrar
         </button>
       </form>
 
-      {erro && <p style={{ color: "red", marginTop: "10px" }}>{erro}</p>}
+      {erro && (
+        <p style={{ color: "red", marginTop: 10, fontWeight: "bold" }}>{erro}</p>
+      )}
     </div>
   );
 }
-
-export default AdminLogin;
-    </div>
-  );
-}
-
