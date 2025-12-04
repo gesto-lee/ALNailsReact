@@ -1,7 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from "react";
 import "./styles.css";
-import { db } from "./firebase";
+
 import {
   collection,
   query,
@@ -11,6 +11,8 @@ import {
   orderBy,
   serverTimestamp,
 } from "firebase/firestore";
+
+import { db } from "./firebase";
 
 /* === CONFIGURAÇÃO === */
 const BUSINESS_WHATSAPP = "5562982097833";
@@ -153,7 +155,7 @@ export default function App() {
       return;
     }
 
-    // 🟦 IMPEDIR O MESMO CLIENTE DE MARCAR O MESMO HORÁRIO NO MESMO DIA
+    // IMPEDIR O MESMO CLIENTE DE MARCAR O MESMO HORÁRIO NO MESMO DIA
     const colCheck = collection(db, "appointments");
     const qCheck = query(
       colCheck,
